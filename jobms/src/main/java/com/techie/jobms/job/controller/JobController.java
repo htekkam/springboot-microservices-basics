@@ -1,6 +1,7 @@
 package com.techie.jobms.job.controller;
 
 
+import com.techie.jobms.job.dto.JobDTO;
 import com.techie.jobms.job.model.Job;
 import com.techie.jobms.job.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ public class JobController {
     JobService jobService;
 
     @GetMapping("/findAll")
-    public List<Job> hello() {
+    public List<JobDTO> hello() {
         return jobService.findAll();
     }
 
@@ -41,8 +42,8 @@ public class JobController {
 
     }
     @GetMapping("/jobById/{id}")
-    public ResponseEntity<Job> getJobById(@PathVariable Long id) {
-        Job job = jobService.getJobById(id);
-        return new ResponseEntity<>(job, HttpStatus.OK);
+    public ResponseEntity<JobDTO> getJobById(@PathVariable Long id) {
+        JobDTO jobDTO = jobService.getJobById(id);
+        return new ResponseEntity<>(jobDTO, HttpStatus.OK);
     }
 }
