@@ -9,6 +9,7 @@ import com.techie.jobms.job.external.Review;
 import com.techie.jobms.job.mapper.JobMapper;
 import com.techie.jobms.job.model.Job;
 import com.techie.jobms.job.repository.JobRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -34,6 +35,8 @@ public class JobService {
     @Autowired
     ReviewClient reviewClient;
 
+    @CircuitBreaker(name = "companyBreaker",
+            fallbackMethod = "companyBreakerFallback")
     public List<JobDTO> findAll(){
 
         return jobRepository.findAll().stream().map(this::convertToDTO).toList();
@@ -53,6 +56,10 @@ public class JobService {
         return JobMapper.mapToJobWithCompanyDTO(job,company,reviewList);
 
     }
+
+    //defining fall back method
+    
+
 
     public void createJob(Job job){
         jobRepository.save(job);
