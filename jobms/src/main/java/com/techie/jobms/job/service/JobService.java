@@ -10,6 +10,8 @@ import com.techie.jobms.job.mapper.JobMapper;
 import com.techie.jobms.job.model.Job;
 import com.techie.jobms.job.repository.JobRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,10 +39,15 @@ public class JobService {
     @Autowired
     ReviewClient reviewClient;
 
-    @CircuitBreaker(name = "companyBreaker",
-            fallbackMethod = "companyBreakerFallback")
-    public List<JobDTO> findAll(){
+    int retryCount=0;
 
+//    @RateLimiter(name = "rateLimiter",fallbackMethod = "companyRateLimiterFallback")
+    @Retry(name = "companyRetry")
+    @CircuitBreaker(name = "companyBreaker",fallbackMethod = "companyBreakerFallback")
+    public List<JobDTO> findAll() throws IOException {
+        System.out.println("Retry count::"+ ++retryCount);
+        if(retryCount>3)
+            throw new IOException();
         return jobRepository.findAll().stream().map(this::convertToDTO).toList();
     }
 
@@ -57,9 +66,16 @@ public class JobService {
 
     }
 
-    //defining fall back method
-    
+    //defining fall back method for circuit breaker
+    public List<String> companyBreakerFallback(Exception e){
+        return List.of("Company service is temporarily unavailable");
+    }
 
+    //defining fall back method for retry mechanism
+    //defining fall back method for circuit breaker
+    public List<String> companyRetry(Exception e){
+        return List.of("Company service is temporarily unavailable..retrying");
+    }
 
     public void createJob(Job job){
         jobRepository.save(job);

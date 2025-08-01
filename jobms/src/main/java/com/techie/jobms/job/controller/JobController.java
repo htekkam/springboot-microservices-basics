@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,7 @@ public class JobController {
     JobService jobService;
 
     @GetMapping("/findAll")
-    public List<JobDTO> hello() {
+    public List<JobDTO> hello() throws IOException {
         return jobService.findAll();
     }
 
