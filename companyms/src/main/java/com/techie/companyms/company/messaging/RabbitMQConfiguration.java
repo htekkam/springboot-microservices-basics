@@ -1,8 +1,7 @@
-package com.techie.reviewms.reviews.messaging;
+package com.techie.companyms.company.messaging;
 
 
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -14,13 +13,8 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfiguration {
 
     @Bean
-    public Queue companyRatingQueue() {
-        return QueueBuilder.durable("companyRatingQueue").build(); // explicitly durable
-    }
-
-    @Bean
-    public Queue companyConfirmQueue() {
-        return QueueBuilder.durable("testqueue").build();
+    public Queue companyRatingQueue(){
+        return new Queue("companyRatingQueue");
     }
 
     @Bean

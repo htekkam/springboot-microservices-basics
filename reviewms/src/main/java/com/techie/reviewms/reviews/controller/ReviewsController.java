@@ -1,5 +1,6 @@
 package com.techie.reviewms.reviews.controller;
 
+import com.techie.reviewms.reviews.messaging.ReviewMessageProducer;
 import com.techie.reviewms.reviews.model.Review;
 import com.techie.reviewms.reviews.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class ReviewsController {
 
     @Autowired
     ReviewService reviewService;
+
+    @Autowired
+    ReviewMessageProducer reviewMessageProducer;
 
     @GetMapping
     public ResponseEntity<List<Review>> getAllReviews(@RequestParam Long companyId){
@@ -34,6 +38,8 @@ public class ReviewsController {
 
         boolean isReviewSaved = reviewService.addReview(companyId,review);
         if(isReviewSaved){
+            reviewMessageProducer.sendMessage(review);
+            //reviewMessageProducer.sendConfirmation("review created");
             return new ResponseEntity<>("Review added successfully",HttpStatus.OK);
         }
         else {
@@ -68,5 +74,14 @@ public class ReviewsController {
         else
             return  new ResponseEntity<>("Review does not exist",HttpStatus.NOT_FOUND);
 
+    }
+
+    @GetMapping("/averageRating")
+    public Double getAvgReview(@RequestParam Long companyId){
+
+        return reviewService.getAllReviews().stream()
+                .mapToDouble(Review::getCompanyId)
+                .average()
+                .orElse(0.0);
     }
 }

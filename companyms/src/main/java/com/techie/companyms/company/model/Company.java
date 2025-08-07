@@ -48,7 +48,15 @@ public class Company {
     }
 
     private String description;
+    private Double avgRating;
 
+    public Double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
 }
 
 

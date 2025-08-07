@@ -27,6 +27,90 @@ services:
       - postgres
     restart: unless-stopped
 
+  configms:
+    container_name: configms
+    image: th00870620/configms:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - servicereg
+    networks:
+      - microservice-network
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  servicereg:
+    container_name: servicereg
+    image: th00870620/servicereg:latest
+    ports:
+      - "8761:8761"
+    depends_on:
+      - rabbitmq
+      - postgres
+      - pgadmin
+      - zipkin
+    networks:
+      - microservice-network
+      - postgres
+  companyms:
+    container_name: companyms
+    image: th00870620/companyms:latest
+    ports:
+      - "8081:8081"
+    depends_on:
+      - servicereg
+      - configms
+
+    networks:
+      - microservice-network
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  jobms:
+    container_name: jobms
+    image: th00870620/jobms:latest
+    ports:
+      - "8082:8082"
+    depends_on:
+      - servicereg
+      - configms
+
+    networks:
+      - microservice-network
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+  reviewms:
+    container_name: reviewms
+    image: th00870620/reviewms:latest
+    ports:
+      - "8083:8083"
+    depends_on:
+      - servicereg
+      - configms
+
+    networks:
+      - microservice-network
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  gatewayms:
+    container_name: gatewayms
+    image: th00870620/gatewayms:latest
+    ports:
+      - "8084:8084"
+    depends_on:
+      - servicereg
+      - configms
+
+    networks:
+      - microservice-network
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
@@ -45,6 +129,8 @@ services:
 
 networks:
   postgres:
+    driver: bridge
+  microservice-network:
     driver: bridge
 volumes:
   postgres:

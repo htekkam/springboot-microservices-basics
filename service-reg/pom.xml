@@ -59,12 +59,26 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>servicereg</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.5.4</version>
+				<configuration>
+					<image>
+						<name>th00870620/servicereg:latest</name>
+						<builder>paketobuildpacks/builder:base</builder>
+						<env>
+							<BP_JVM_VERSION>17</BP_JVM_VERSION>
+						</env>
+					</image>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
+
+
 
 </project>

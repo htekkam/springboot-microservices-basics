@@ -1,8 +1,11 @@
 package com.techie.companyms.company.service;
 
 
+import com.techie.companyms.company.client.ReviewClient;
+import com.techie.companyms.company.dto.ReviewMessage;
 import com.techie.companyms.company.model.Company;
 import com.techie.companyms.company.repository.CompanyRepository;
+import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,8 +15,11 @@ import java.util.Optional;
 @Service
 public class CompanyService {
 
-    @Autowired
-    private CompanyRepository companyRepository;
+   @Autowired
+   CompanyRepository companyRepository;
+
+   @Autowired
+   ReviewClient reviewClient;
 
     public List<Company> getAllCompanies(){
         return companyRepository.findAll();
@@ -48,5 +54,14 @@ public class CompanyService {
             return true;
         }
         return false;
+    }
+
+    public void updateCompanyRating(ReviewMessage reviewMessage) {
+        System.out.println("review message consumed::"+reviewMessage.getDescription());
+        Company company = companyRepository.findById(reviewMessage.getCompanyId())
+                .orElseThrow(() -> new NotFoundException("Company not found for the id::"+ reviewMessage.getCompanyId()));
+        double avgRating = reviewClient.getAvgRating(reviewMessage.getCompanyId());
+        company.setAvgRating(avgRating);
+        companyRepository.save(company);
     }
 }
